@@ -1,17 +1,35 @@
-# ... (system deps, caddy install, corepack enable — same as before)
+# syntax=docker/dockerfile:1
+FROM node:22-bookworm-slim
 
+RUN apt-get update && apt-get install -y git curl && rm -rf /var/lib/apt/lists/*
+
+RUN curl -fsSL "https://caddyserver.com/api/download?os=linux&arch=amd64" -o /usr/bin/caddy && chmod +x /usr/bin/caddy
+
+RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
 RUN npm install -g @deepseek-ai/dsh
 
-# ❌ Remove this line: RUN dsh plugin --profile web add dsh-remote-trust
-
-# Caddyfile (same as before)
+RUN mkdir -p /etc/caddy && cat <<'EOF' > /etc/caddy/Caddyfile
+{
+    admin off
+    auto_https off
+}
+:10000 {
+    basic_auth {
+        admin $2a$12$zFqAjpvYav/YqyRClNVGyeGVAafBVDmx0TFY7HiKiGcrVwwxeshqu
+    }
+    reverse_proxy 127.0.0.1:3080 {
+        header_up Host 127.0.0.1:3080
+        header_up Origin http://127.0.0.1:3080
+    }
+}
+EOF
 
 RUN cat <<'EOF' > /start.sh
 #!/bin/sh
 
-# Install plugin at runtime
-dsh plugin --profile web add dsh-remote-trust --registry https://registry.npmjs.org || true
+# Plugin ko runtime par install karein (build ke waqt pnpm enable error se bachne ke liye)
+dsh plugin --profile web add dsh-remote-trust || true
 
 dsh web --host 127.0.0.1 --port 3080 --no-open &
 DSH_PID=$!
