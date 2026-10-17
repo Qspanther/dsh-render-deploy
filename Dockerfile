@@ -17,7 +17,7 @@ RUN mkdir -p /etc/caddy && cat <<'EOF' > /etc/caddy/Caddyfile
 }
 :10000 {
     basic_auth {
-        admin $2a$12$8uomYitbPdeVHrN0BF27UOR7VqqKZVM95BJDRsAgkim2bK9vBwyxW
+        admin $2a$12$zFqAjpvYav/YqyRClNVGyeGVAafBVDmx0TFY7HiKiGcrVwwxeshqu
     }
     reverse_proxy 127.0.0.1:3080 {
         header_up Host 127.0.0.1:3080
@@ -28,6 +28,7 @@ EOF
 
 RUN cat <<'EOF' > /start.sh
 #!/bin/sh
+dsh plugin --profile web enable dsh-remote-trust || true
 dsh web --host 127.0.0.1 --port 3080 --no-open &
 DSH_PID=$!
 caddy run --config /etc/caddy/Caddyfile &
