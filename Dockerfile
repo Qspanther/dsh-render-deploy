@@ -1,13 +1,12 @@
-﻿# --- Yahan apna Username aur Password daalein ---
+﻿# --- Apna Username aur Password yahan daalein ---
 $username = "admin"
 $password = "Panther#123"
 
-# Password ka bcrypt hash generate karein (Node.js ke through)
-Write-Host "Password hash banaya ja raha hai..." -ForegroundColor Cyan
+# Password ka bcrypt hash generate karein
 $hash = node -e "const bcrypt = require('bcryptjs'); console.log(bcrypt.hashSync('$password', 10))"
 
-# Dockerfile ka naya content
-$dockerfile = @"
+# Dockerfile ka saaf content (sirf Docker instructions)
+$dockerfileContent = @"
 FROM node:22-bookworm-slim
 
 RUN apt-get update && apt-get install -y git curl && rm -rf /var/lib/apt/lists/*
@@ -45,13 +44,12 @@ EXPOSE 10000
 CMD ["/start.sh"]
 "@
 
-# Dockerfile save karein
-$dockerfile | Out-File -Encoding utf8 -FilePath "Dockerfile"
+# File ko BOM ke bina save karein (sabse zaroori step)
+[System.IO.File]::WriteAllText("$PWD\Dockerfile", $dockerfileContent)
 
 # GitHub par push karein
 git add Dockerfile
-git commit -m "Fix: Add real bcrypt hash for Caddy basic auth"
+git commit -m "Fix: Correct Dockerfile syntax and remove BOM"
 git push origin main
 
-Write-Host "Done! Ab Render dashboard mein Manual Deploy karein." -ForegroundColor Green
-Write-Host "Aapka Username: $username" -ForegroundColor Yellow
+Write-Host "Done! Ab Render Dashboard mein Manual Deploy karein." -ForegroundColor Green
