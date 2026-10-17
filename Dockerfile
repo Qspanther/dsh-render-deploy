@@ -1,12 +1,12 @@
-﻿# --- Apna Username aur Password yahan daalein ---
-$username = "admin"
-$password = "Panther#123"
+﻿# 1. Apna username aur password yahan set karein
+$user = "admin"
+$pass = "Panther#123"
 
-# Password ka bcrypt hash generate karein
-$hash = node -e "const bcrypt = require('bcryptjs'); console.log(bcrypt.hashSync('$password', 10))"
+# 2. Password ka hash banayein
+$hash = node -e "const bcrypt = require('bcryptjs'); console.log(bcrypt.hashSync('$pass', 10))"
 
-# Dockerfile ka saaf content (sirf Docker instructions)
-$dockerfileContent = @"
+# 3. Dockerfile ka saaf content taiyar karein (sirf Docker commands)
+$content = @"
 FROM node:22-bookworm-slim
 
 RUN apt-get update && apt-get install -y git curl && rm -rf /var/lib/apt/lists/*
@@ -23,7 +23,7 @@ RUN mkdir -p /etc/caddy && echo '{
 }
 :10000 {
     basic_auth {
-        $username $hash
+        $user $hash
     }
     reverse_proxy 127.0.0.1:3080 {
         header_up Host 127.0.0.1:3080
@@ -44,12 +44,10 @@ EXPOSE 10000
 CMD ["/start.sh"]
 "@
 
-# File ko BOM ke bina save karein (sabse zaroori step)
-[System.IO.File]::WriteAllText("$PWD\Dockerfile", $dockerfileContent)
+# 4. Sabse zaroori step: File ko BOM ke bina (saaf UTF-8) save karein
+[System.IO.File]::WriteAllText("$PWD\Dockerfile", $content, (New-Object System.Text.UTF8Encoding $False))
 
-# GitHub par push karein
+# 5. GitHub par push karein
 git add Dockerfile
-git commit -m "Fix: Correct Dockerfile syntax and remove BOM"
+git commit -m "Fix: Clean Dockerfile content and encoding"
 git push origin main
-
-Write-Host "Done! Ab Render Dashboard mein Manual Deploy karein." -ForegroundColor Green
