@@ -2,15 +2,17 @@
 
 RUN apt-get update && apt-get install -y git curl && rm -rf /var/lib/apt/lists/*
 
-# Caddy install karein
 RUN curl -fsSL "https://caddyserver.com/api/download?os=linux&arch=amd64" -o /usr/bin/caddy && chmod +x /usr/bin/caddy
 
 RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
 RUN npm install -g @deepseek-ai/dsh
 
-# Caddy ke liye directory banayein, phir config file likhein
-RUN mkdir -p /etc/caddy && echo ':10000 {\n\
+RUN mkdir -p /etc/caddy && echo '{\n\
+    admin off\n\
+    auto_https off\n\
+}\n\
+:10000 {\n\
     basic_auth {\n\
         admin $$2a$$14$$REPLACE_WITH_A_REAL_BCRYPT_HASH\n\
     }\n\
