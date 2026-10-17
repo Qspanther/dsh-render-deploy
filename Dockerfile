@@ -8,7 +8,8 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
 RUN npm install -g @deepseek-ai/dsh
 
-RUN mkdir -p /etc/caddy && echo '{
+RUN mkdir -p /etc/caddy && cat <<'EOF' > /etc/caddy/Caddyfile
+{
     admin off
     auto_https off
 }
@@ -20,7 +21,8 @@ RUN mkdir -p /etc/caddy && echo '{
         header_up Host 127.0.0.1:3080
         header_up Origin http://127.0.0.1:3080
     }
-}' > /etc/caddy/Caddyfile
+}
+EOF
 
 RUN echo '#!/bin/sh
 dsh web --host 127.0.0.1 --port 3080 --no-open &
