@@ -8,6 +8,7 @@ RUN curl -fsSL "https://caddyserver.com/api/download?os=linux&arch=amd64" -o /us
 RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
 RUN npm install -g @deepseek-ai/dsh
+RUN dsh plugin --profile web add dsh-remote-trust
 
 RUN mkdir -p /etc/caddy && cat <<'EOF' > /etc/caddy/Caddyfile
 {
