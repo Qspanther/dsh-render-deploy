@@ -28,12 +28,14 @@ EOF
 RUN cat <<'EOF' > /start.sh
 #!/bin/sh
 
-# Plugin ko runtime par install karein (build ke waqt pnpm enable error se bachne ke liye)
+# Plugin install karein
 dsh plugin --profile web add dsh-remote-trust || true
 
-dsh web --host 127.0.0.1 --port 3080 --no-open &
+# DSH web server start karein (trusted-host ke saath)
+dsh web --host 127.0.0.1 --port 3080 --no-open --trusted-host dsh-render-deploy.onrender.com &
 DSH_PID=$!
 
+# Caddy start karein
 caddy run --config /etc/caddy/Caddyfile &
 CADDY_PID=$!
 
