@@ -16,7 +16,7 @@ RUN mkdir -p /etc/caddy && cat <<'EOF' > /etc/caddy/Caddyfile
 }
 :10000 {
     basic_auth {
-        admin $2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy
+        admin $2a$12$8uomYitbPdeVHrN0BF27UOR7VqqKZVM95BJDRsAgkim2bK9vBwyxW
     }
     reverse_proxy 127.0.0.1:3080 {
         header_up Host 127.0.0.1:3080
