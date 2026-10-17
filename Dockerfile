@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 FROM node:22-bookworm-slim
 
 RUN apt-get update && apt-get install -y git curl && rm -rf /var/lib/apt/lists/*
@@ -24,13 +25,15 @@ RUN mkdir -p /etc/caddy && cat <<'EOF' > /etc/caddy/Caddyfile
 }
 EOF
 
-RUN echo '#!/bin/sh
+RUN cat <<'EOF' > /start.sh
+#!/bin/sh
 dsh web --host 127.0.0.1 --port 3080 --no-open &
 DSH_PID=$!
 caddy run --config /etc/caddy/Caddyfile &
 CADDY_PID=$!
 wait
-' > /start.sh && chmod +x /start.sh
+EOF
+RUN chmod +x /start.sh
 
 ENV PORT=10000
 EXPOSE 10000
